@@ -29,7 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final titleStyle = Theme.of(context)
         .textTheme
-        .displayMedium!
+        .displayLarge!
         .copyWith(fontWeight: FontWeight.bold);
 
     return Scaffold(

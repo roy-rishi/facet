@@ -23,68 +23,71 @@ class _LoginPageState extends State<LoginPage> {
         .displayLarge!
         .copyWith(fontWeight: FontWeight.bold);
 
-    return SafeArea(
-        child: Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Center(child: Text("Login", style: titleStyle)),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                height: _textFieldHeight,
-                width: _textFieldWidth,
-                child: TextField(
-                  controller: _emailTextController,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 14, bottom: 14),
-                child: SizedBox(
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Center(child: Text("Login", style: titleStyle)),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
                   height: _textFieldHeight,
                   width: _textFieldWidth,
                   child: TextField(
-                    obscureText: true,
-                    controller: _passTextController,
+                    controller: _emailTextController,
                     decoration: const InputDecoration(
-                      labelText: "Password",
+                      labelText: "Email",
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FilledButton(
-                    child: Text("Sign In"),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Placeholder()));
-                    },
+                Padding(
+                  padding: const EdgeInsets.only(top: 14, bottom: 14),
+                  child: SizedBox(
+                    height: _textFieldHeight,
+                    width: _textFieldWidth,
+                    child: TextField(
+                      obscureText: true,
+                      controller: _passTextController,
+                      decoration: const InputDecoration(
+                        labelText: "Password",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
                   ),
-                  TextButton(
-                    child: Text("Or, Sign Up"),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterPage(emailAddress: _emailTextController.text.trim())));
-                    },
-                  ),
-                ],
-              )
-            ],
-          )
-        ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FilledButton(
+                      child: Text("Sign In"),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Placeholder()));
+                      },
+                    ),
+                    TextButton(
+                      child: Text("Or, Sign Up"),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RegisterPage(
+                                    emailAddress:
+                                        _emailTextController.text.trim())));
+                      },
+                    ),
+                  ],
+                )
+              ],
+            )
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
