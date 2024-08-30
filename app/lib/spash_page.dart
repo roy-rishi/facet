@@ -39,9 +39,8 @@ class _StartPageState extends State<StartPage> {
           fontWeight: FontWeight.w900,
           fontSize: 100,
         );
-    final subtitleStyle = Theme.of(context).textTheme.labelLarge!.copyWith(
+    final subtitleStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(
           fontSize: 18,
-          fontWeight: FontWeight.w100,
         );
 
     return Scaffold(
