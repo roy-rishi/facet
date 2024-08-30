@@ -15,7 +15,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailTextController = TextEditingController();
   final _passTextController = TextEditingController();
   final _passConfirmTextController = TextEditingController();
-  final _secretTextController = TextEditingController();
 
   bool _showPassField = false;
 
@@ -127,8 +126,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       // password fields already showing
                       final pass1 = _passTextController.text.trim();
                       final pass2 = _passConfirmTextController.text.trim();
-                      final secret = _secretTextController.text.trim();
-                      if (pass1 == "" || pass2 == "" || secret == "") {
+                      if (pass1 == "" || pass2 == "") {
                         // incomplete fields
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
