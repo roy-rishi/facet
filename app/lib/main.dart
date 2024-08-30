@@ -1,4 +1,4 @@
-import 'package:facet/start_page.dart';
+import 'package:facet/spash_page.dart';
 import 'package:facet/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,7 +24,7 @@ class AppRoot extends StatelessWidget {
           decorationColor: darkColorScheme.tertiary,
         ),
       ),
-      home: const OnStart(),
+      home: const StartPage(),
     );
   }
 }

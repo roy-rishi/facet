@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Verify Your Email | Facet</title>
+</head>
+
+<body>
+    <div id="mainBlock">
+        <div id="loading">
+            <h1>Loading...</h1>
+        </div>
+        <div id="jsWarning">
+            <h1>JavaScript Error</h1>
+            <p>Please enable JavaScript to complete your verification.</p>
+        </div>
+        <div id="confirmText">
+            <h1>Email Verified</h1>
+            <p>Thank you for verifying your email. You may return to the
+                application to sign up.</p>
+        </div>
+        <div id="failText">
+            <h1>Invalid</h1>
+            <p>Email could not be verified because the token is expired or is not valid. You may generate a new one from
+                the application.</p>
+        </div>
+    </div>
+</body>
+
+<style>
+    body {
+        color: rgb(220, 220, 220);
+        background-color: rgb(10, 10, 10);
+        text-align: center;
+        font-family: sans-serif;
+    }
+
+    h1 {
+        color: #B3C5FF;
+    }
+
+    #mainBlock {
+        padding-top: 12vh;
+    }
+
+    /* don't show on start */
+    #confirmText,
+    #failText,
+    #loading {
+        display: none;
+    }
+</style>
+
+<script>
+    async function verifyToken(jwt) {
+        res = await fetch(`${window.location.origin}/verify-email-token`, {
+            method: "POST",
+            body: JSON.stringify({
+                token: jwt
+            })
+        });
+        // hide loading
+        document.getElementById("loading").style.display = "none";
+        if (res.status == 200) { // show success
+            document.getElementById("confirmText").style.display = "block";
+        } else if (res.status == 401) { // show failure
+            document.getElementById("failText").style.display = "block";
+        }
+
+    }
+    // remove js warning because js is enabled and show loading
+    document.getElementById("jsWarning").style.display = "none";
+    document.getElementById("loading").style.display = "block";
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const jwt = urlParams.get("t");
+
+    verifyToken(jwt);
+</script>
+
+</html>
