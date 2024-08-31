@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'strava_connect_page.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key, required this.emailAddress,});
 
@@ -139,8 +141,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                 content: Center(
                                     child: Text("Passwords do not match"))));
                       } else {
-                        // check if secret phrase is valid
-
+                        // TODO: post to server
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => StravaConnectPage()));
                       }
                     }
                   },

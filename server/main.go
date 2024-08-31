@@ -5,23 +5,22 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 type TokenReq struct {
 	Token string
 }
 
-func verifyRoute(w http.ResponseWriter, r *http.Request) {
+func verifyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /verify")
-	time.Sleep(1000000000)                 // delay 1s
+	// time.Sleep(2000000000)                 // delay 2s
 	w.WriteHeader(http.StatusUnauthorized) // 401
 	// w.WriteHeader(http.StatusOK) // 200
 	w.Write([]byte(""))
 }
 
 // serve html page for verifying email
-func verifyEmailPageRoute(w http.ResponseWriter, r *http.Request) {
+func verifyEmailPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /verify-email")
 	// read email verification file
 	verificationHTML, err := os.ReadFile("assets/email_verification.html")
@@ -33,7 +32,7 @@ func verifyEmailPageRoute(w http.ResponseWriter, r *http.Request) {
 
 // html email verification page POSTs here
 // checks if the jwt is valid
-func verifyEmailTokenRoute(w http.ResponseWriter, r *http.Request) {
+func verifyEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("POST /verify-email-token")
 	var t TokenReq
 	err := json.NewDecoder(r.Body).Decode(&t)
@@ -53,10 +52,21 @@ func verifyEmailTokenRoute(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("POST /strava-callback")
+	r.ParseForm()
+	params := r.Form
+	log.Println(params)
+	// code := params.Get("code")
+	// scope := params.Get("scope")
+	w.Write([]byte("<h1>Authorization with Strava Complete</h1>You may close this tab and return to the application"))
+}
+
 func main() {
 	log.Println("Listening on port 3010")
-	http.HandleFunc("/verify", verifyRoute)
-	http.HandleFunc("/verify-email", verifyEmailPageRoute)
-	http.HandleFunc("/verify-email-token", verifyEmailTokenRoute)
+	http.HandleFunc("/verify", verifyHandler)
+	http.HandleFunc("/verify-email", verifyEmailPageHandler)
+	http.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
+	http.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
 	log.Fatal(http.ListenAndServe(":3010", nil))
 }

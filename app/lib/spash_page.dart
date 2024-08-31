@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 Future<int> verifyAuth() async {
-  final response = await http.get(Uri.parse("http://localhost:3010/verify"));
+  final response = await http.get(Uri.parse("https://facet.rishiroy.com/verify"));
   print(response.body);
   if (response.statusCode == 200) {
     return 200;
