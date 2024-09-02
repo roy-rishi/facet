@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type TokenReq struct {
@@ -63,10 +65,16 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("Listening on port 3010")
+	log.Printf("Loading env from .env")
+	godotenv.Load(".env")
+	port := os.Getenv("PORT")
+	// clientId := os.Getenv("CLIENT_ID")
+	// clientSecret := os.Getenv("CLIENT_SECRET")
+
+	log.Printf("Listening on port %v\n", port)
 	http.HandleFunc("/verify", verifyHandler)
 	http.HandleFunc("/verify-email", verifyEmailPageHandler)
 	http.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
 	http.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
-	log.Fatal(http.ListenAndServe(":3010", nil))
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

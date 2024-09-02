@@ -18,7 +18,7 @@ class StravaConnectPage extends StatelessWidget {
   const StravaConnectPage({super.key});
 
   final stravaOAuthUri =
-      "https://www.strava.com/oauth/authorize?client_id=133457&redirect_uri=https://facet.rishiroy.com/strava-callback&response_type=code&scope=activity:read_all";
+      "https://www.strava.com/oauth/mobile/authorize?client_id=133457&redirect_uri=https://facet.rishiroy.com/strava-callback&response_type=code&scope=activity:read_all";
 
   @override
   Widget build(BuildContext context) {
