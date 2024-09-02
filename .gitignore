@@ -4,6 +4,9 @@
 # macOS
 .DS_Store
 
+# VS Code
+/.vscode
+
 # Dart .gitignore template:
 # Files and directories created by pub
 .dart_tool/

@@ -1,4 +1,4 @@
-package com.example.facet
+package com.rishiroy.facet
 
 import io.flutter.embedding.android.FlutterActivity
 

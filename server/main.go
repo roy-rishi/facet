@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -64,6 +65,21 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("<h1>Authorization with Strava Complete</h1>You may close this tab and return to the application"))
 }
 
+func serveAndroidAppLinkFingerprints(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET /.well-known/assetlinks.json")
+	assetlinksJSON, err := os.ReadFile("assets/assetlinks.json")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write([]byte(assetlinksJSON))
+}
+
+func appLinkTests(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET /app-link")
+	w.Write([]byte("<a href='https://facet.rishiroy.com/details'>Details</a> <br/> <a href='https://facet.rishiroy.com/'>Home</a>"))
+}
+
 func main() {
 	log.Printf("Loading env from .env")
 	godotenv.Load(".env")
@@ -71,10 +87,20 @@ func main() {
 	// clientId := os.Getenv("CLIENT_ID")
 	// clientSecret := os.Getenv("CLIENT_SECRET")
 
+	// start main server
+	mainMux := http.NewServeMux()
+	mainMux.HandleFunc("/verify", verifyHandler)
+	mainMux.HandleFunc("/verify-email", verifyEmailPageHandler)
+	mainMux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
+	mainMux.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
+	mainMux.HandleFunc("/.well-known/assetlinks.json", serveAndroidAppLinkFingerprints)
+	mainMux.HandleFunc("/app-link", appLinkTests)
+	mainServer := &http.Server{
+		Addr:         "127.0.0.1:" + port,
+		WriteTimeout: 10 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		Handler:      mainMux,
+	}
 	log.Printf("Listening on port %v\n", port)
-	http.HandleFunc("/verify", verifyHandler)
-	http.HandleFunc("/verify-email", verifyEmailPageHandler)
-	http.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
-	http.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	mainServer.ListenAndServe()
 }

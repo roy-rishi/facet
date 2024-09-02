@@ -2,9 +2,13 @@ import 'package:facet/spash_page.dart';
 import 'package:facet/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 
 void main() {
-  runApp(const AppRoot());
+  // runApp(const AppRoot());
+  runApp(MaterialApp.router(
+    routerConfig: router,
+  ));
 }
 
 class AppRoot extends StatelessWidget {
@@ -28,3 +32,20 @@ class AppRoot extends StatelessWidget {
     );
   }
 }
+
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: "/", // root
+      builder: (_, __) => const AppRoot(),
+      routes: [
+        GoRoute(
+          path: 'details', // details
+          builder: (_, __) => Scaffold(
+            appBar: AppBar(title: const Text('Details Screen')),
+          ),
+        ),
+      ],
+    ),
+  ],
+);
