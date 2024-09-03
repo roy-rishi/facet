@@ -75,11 +75,6 @@ func serveAndroidAppLinkFingerprints(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(assetlinksJSON))
 }
 
-func appLinkTests(w http.ResponseWriter, r *http.Request) {
-	log.Println("GET /app-link")
-	w.Write([]byte("<a href='https://facet.rishiroy.com/details'>Details</a> <br/> <a href='https://facet.rishiroy.com/'>Home</a>"))
-}
-
 func main() {
 	log.Printf("Loading env from .env")
 	godotenv.Load(".env")
@@ -87,20 +82,19 @@ func main() {
 	// clientId := os.Getenv("CLIENT_ID")
 	// clientSecret := os.Getenv("CLIENT_SECRET")
 
-	// start main server
-	mainMux := http.NewServeMux()
-	mainMux.HandleFunc("/verify", verifyHandler)
-	mainMux.HandleFunc("/verify-email", verifyEmailPageHandler)
-	mainMux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
-	mainMux.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
-	mainMux.HandleFunc("/.well-known/assetlinks.json", serveAndroidAppLinkFingerprints)
-	mainMux.HandleFunc("/app-link", appLinkTests)
-	mainServer := &http.Server{
+	// initiate server
+	mux := http.NewServeMux()
+	mux.HandleFunc("/verify", verifyHandler)
+	mux.HandleFunc("/verify-email", verifyEmailPageHandler)
+	mux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
+	mux.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
+	mux.HandleFunc("/.well-known/assetlinks.json", serveAndroidAppLinkFingerprints)
+	server := &http.Server{
 		Addr:         "127.0.0.1:" + port,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
-		Handler:      mainMux,
+		Handler:      mux,
 	}
 	log.Printf("Listening on port %v\n", port)
-	mainServer.ListenAndServe()
+	server.ListenAndServe()
 }
