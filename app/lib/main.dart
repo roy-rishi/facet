@@ -1,4 +1,5 @@
 import 'package:facet/spash_page.dart';
+import 'package:facet/strava_connect_callback.dart';
 import 'package:facet/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,7 +13,9 @@ void main() {
 }
 
 class AppRoot extends StatelessWidget {
-  const AppRoot({super.key});
+  AppRoot({super.key, required this.page});
+
+  Widget page;
 
   @override
   Widget build(BuildContext context) {
@@ -28,22 +31,37 @@ class AppRoot extends StatelessWidget {
           decorationColor: darkColorScheme.tertiary,
         ),
       ),
-      home: const StartPage(),
+      home: page,
     );
   }
+}
+
+Widget stravaAuthCallbackHandler(state) {
+  Map<String, String> params = state.uri.queryParameters;
+  if (params["error"] == "access_denied") {
+    throw UnimplementedError("User did not grant permission");
+  }
+  if (params["code"] == null || params["scope"] == null) {
+    throw UnimplementedError(
+        "Expected additional query params in Strava callback");
+  }
+  return StravaConnectCallback(
+    code: params["code"]!,
+    scope: params["scope"]!,
+  );
 }
 
 final router = GoRouter(
   routes: [
     GoRoute(
-      path: "/", // root
-      builder: (_, __) => const AppRoot(),
+      path: "/",
+      builder: (_, __) => AppRoot(page: const StartPage()),
       routes: [
         GoRoute(
-          path: 'details', // details
-          builder: (_, __) => Scaffold(
-            appBar: AppBar(title: const Text('Details Screen')),
-          ),
+          path: "strava-auth",
+          builder: (context, state) {
+            return AppRoot(page: stravaAuthCallbackHandler(state));
+          },
         ),
       ],
     ),

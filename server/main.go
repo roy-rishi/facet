@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +13,13 @@ import (
 )
 
 type TokenReq struct {
+	Token string
+}
+
+type StravaCodeExchange struct {
+	Code  string
+	Scope string
+	Email string
 	Token string
 }
 
@@ -56,13 +65,57 @@ func verifyEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("POST /strava-callback")
-	r.ParseForm()
-	params := r.Form
-	log.Println(params)
-	// code := params.Get("code")
-	// scope := params.Get("scope")
-	w.Write([]byte("<h1>Authorization with Strava Complete</h1>You may close this tab and return to the application"))
+	log.Println("POST /strava/exchange-code")
+	// decode request body
+	var body StravaCodeExchange
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// check if necessary scopes were granted
+	if body.Scope != "read,activity:read_all" {
+		http.Error(w, "Bad Scope", http.StatusBadRequest)
+		log.Println("Bad scope")
+		return
+	}
+
+	// form POST body to send to Strava API
+	type bodyParams struct {
+		ClientID     string `json:"client_id"`
+		ClientSecret string `json:"client_secret"`
+		Code         string `json:"code"`
+		GrantType    string `json:"authorization_code"`
+	}
+	clientID := os.Getenv("CLIENT_ID")
+	clientSecret := os.Getenv("CLIENT_SECRET")
+	// TODO: error handling on this whole func body
+	newBody, err := json.Marshal(bodyParams{ClientID: clientID, ClientSecret: clientSecret, Code: body.Code, GrantType: "authorization_code"})
+	request, err := http.NewRequest("POST", "https://www.strava.com/oauth/token", bytes.NewBuffer(newBody))
+	request.Header.Set("Content-Type", "application/json")
+
+	// execute POST
+	client := http.Client{}
+	stravaRes, err := client.Do(request)
+	defer stravaRes.Body.Close()
+	stravaResBody, err := io.ReadAll(stravaRes.Body)
+	log.Println(string(stravaResBody))
+
+	// process Strava response
+	var stravaResJSON map[string]interface{}
+	err = json.Unmarshal(stravaResBody, &stravaResJSON)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, "Badly Formed Response from Strava", http.StatusInternalServerError)
+		return
+	}
+	if stravaRes.StatusCode != 200 && stravaResJSON["refresh_token"] != nil {
+		http.Error(w, "", http.StatusBadRequest)
+		return
+	}
+	// TODO: register refresh_token in database
+	w.Write([]byte(""))
 }
 
 func serveAndroidAppLinkFingerprints(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +140,7 @@ func main() {
 	mux.HandleFunc("/verify", verifyHandler)
 	mux.HandleFunc("/verify-email", verifyEmailPageHandler)
 	mux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
-	mux.HandleFunc("/strava-callback", stravaAuthCallbackHandler)
+	mux.HandleFunc("/strava/exchange-code", stravaAuthCallbackHandler)
 	mux.HandleFunc("/.well-known/assetlinks.json", serveAndroidAppLinkFingerprints)
 	server := &http.Server{
 		Addr:         "127.0.0.1:" + port,
