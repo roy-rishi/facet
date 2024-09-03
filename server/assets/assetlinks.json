@@ -7,7 +7,8 @@
             "namespace": "android_app",
             "package_name": "com.rishiroy.facet",
             "sha256_cert_fingerprints": [
-                "4D:ED:AA:F7:35:13:8B:68:EB:35:F5:8B:0E:0E:A3:37:CA:B7:16:9C:A0:BA:79:53:B8:6B:F1:6E:F3:EA:FB:89"
+                "4D:ED:AA:F7:35:13:8B:68:EB:35:F5:8B:0E:0E:A3:37:CA:B7:16:9C:A0:BA:79:53:B8:6B:F1:6E:F3:EA:FB:89",
+                "23:F3:04:8F:F0:E2:C1:5E:DF:EA:24:BC:42:74:AB:DF:EA:D1:0E:27:D7:69:7A:F9:C9:2B:A2:81:16:C1:84:EA"
             ]
         }
     }
