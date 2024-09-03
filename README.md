@@ -3,10 +3,18 @@ insights into every facet of your bike. built with Flutter and Go
 
 ## usage
 ### env. variables
-write the following to server/.env
+configure the server by writing the following to `server/.env`
 ```
 PORT=3010
 # Strava API https://www.strava.com/settings/api
-CLIENT_ID=133457
-CLIENT_SECRET=ebabcee999d4866a142233b50726ed3e7dc0a909
+CLIENT_ID=<client_id>
+CLIENT_SECRET=<client_secret>
+```
+
+to sign Android Apps, write the following to `app/android/key.properties`
+```
+storePassword=<password>
+keyPassword=<password>
+keyAlias=upload
+storeFile=<keystore-file-location>
 ```
