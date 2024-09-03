@@ -110,7 +110,7 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Badly Formed Response from Strava", http.StatusInternalServerError)
 		return
 	}
-	if stravaRes.StatusCode != 200 && stravaResJSON["refresh_token"] != nil {
+	if stravaRes.StatusCode != 200 || stravaResJSON["refresh_token"] != nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
