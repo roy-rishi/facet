@@ -9,6 +9,7 @@ PORT=3010
 # Strava API https://www.strava.com/settings/api
 CLIENT_ID=<client_id>
 CLIENT_SECRET=<client_secret>
+DATABASE_URL=postgres://<remainder_of_url>
 ```
 
 to sign Android Apps, write the following to `app/android/key.properties`

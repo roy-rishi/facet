@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -33,7 +35,7 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(""))
 }
 
-// serve html page for verifying email
+// html page for verifying email
 func verifyEmailPageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /verify-email")
 	// read email verification file
@@ -130,7 +132,7 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(""))
 }
 
-func serveAndroidAppLinkFingerprints(w http.ResponseWriter, r *http.Request) {
+func androidAppLinkFingerprintsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /.well-known/assetlinks.json")
 	assetlinksJSON, err := os.ReadFile("assets/assetlinks.json")
 	if err != nil {
@@ -141,11 +143,17 @@ func serveAndroidAppLinkFingerprints(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Printf("Loading env from .env")
+	log.Println("Loading env from .env")
 	godotenv.Load(".env")
 	port := os.Getenv("PORT")
-	// clientId := os.Getenv("CLIENT_ID")
-	// clientSecret := os.Getenv("CLIENT_SECRET")
+
+	// connect to database
+	log.Println("Connecting to database at DATABASE_URL from .env")
+	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	defer db.Close()
 
 	// initiate server
 	mux := http.NewServeMux()
@@ -153,13 +161,13 @@ func main() {
 	mux.HandleFunc("/verify-email", verifyEmailPageHandler)
 	mux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
 	mux.HandleFunc("/strava/exchange-code", stravaAuthCallbackHandler)
-	mux.HandleFunc("/.well-known/assetlinks.json", serveAndroidAppLinkFingerprints)
+	mux.HandleFunc("/.well-known/assetlinks.json", androidAppLinkFingerprintsHandler)
 	server := &http.Server{
 		Addr:         "127.0.0.1:" + port,
 		WriteTimeout: 10 * time.Second,
 		ReadTimeout:  10 * time.Second,
 		Handler:      mux,
 	}
-	log.Printf("Listening on port %v\n", port)
+	log.Printf("Server listening on port %v\n", port)
 	server.ListenAndServe()
 }
