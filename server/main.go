@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -73,12 +75,22 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	log.Println(body)
+	// TODO: check if Facet token is valid
 
 	// check if necessary scopes were granted
-	if body.Scope != "read,activity:read_all" {
-		http.Error(w, "Bad Scope", http.StatusBadRequest)
-		log.Println("Bad scope")
-		return
+	scopesExpected := [...]string{"read", "activity:read_all"}
+	scopesGranted := strings.Split(body.Scope, ",")
+	for i := 0; i < len(scopesGranted); i++ {
+		scopesGranted[i] = strings.TrimSpace(scopesGranted[i])
+	}
+	for i := 0; i < len(scopesExpected); i++ {
+		scope := scopesExpected[i]
+		if !slices.Contains(scopesGranted, scope) {
+			http.Error(w, "Bad Scope", http.StatusBadRequest)
+			log.Println("Bad scope")
+			return
+		}
 	}
 
 	// form POST body to send to Strava API
@@ -110,7 +122,7 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Badly Formed Response from Strava", http.StatusInternalServerError)
 		return
 	}
-	if stravaRes.StatusCode != 200 || stravaResJSON["refresh_token"] != nil {
+	if stravaRes.StatusCode != 200 || stravaResJSON["refresh_token"] == nil {
 		http.Error(w, "", http.StatusBadRequest)
 		return
 	}
