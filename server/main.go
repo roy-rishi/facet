@@ -29,25 +29,13 @@ type StravaCodeExchange struct {
 
 func verifyHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /verify")
-	// time.Sleep(2000000000)                 // delay 2s
+	setCORS(&w)
+	// time.Sleep(4000000000)                 // delay 4s
 	w.WriteHeader(http.StatusUnauthorized) // 401
 	// w.WriteHeader(http.StatusOK) // 200
 	w.Write([]byte(""))
 }
 
-// html page for verifying email
-func verifyEmailPageHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("GET /verify-email")
-	// read email verification file
-	verificationHTML, err := os.ReadFile("assets/email_verification.html")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	w.Write([]byte(verificationHTML))
-}
-
-// html email verification page POSTs here
-// checks if the jwt is valid
 func verifyEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("POST /verify-email-token")
 	var t TokenReq
@@ -58,7 +46,6 @@ func verifyEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	jwt := t.Token
 	log.Println(jwt)
-	// check if token is valid
 	// TODO: jwt checking
 	if jwt == "crazy.rich.asians" {
 		w.Write([]byte(""))
@@ -142,6 +129,11 @@ func androidAppLinkFingerprintsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(assetlinksJSON))
 }
 
+// TODO: properly enforce CORS
+func setCORS(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 func main() {
 	log.Println("Loading env from .env")
 	godotenv.Load(".env")
@@ -158,10 +150,13 @@ func main() {
 	// initiate server
 	mux := http.NewServeMux()
 	mux.HandleFunc("/verify", verifyHandler)
-	mux.HandleFunc("/verify-email", verifyEmailPageHandler)
 	mux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
 	mux.HandleFunc("/strava/exchange-code", stravaAuthCallbackHandler)
 	mux.HandleFunc("/.well-known/assetlinks.json", androidAppLinkFingerprintsHandler)
+	// host web build files from /server/public
+	fs := http.FileServer(http.Dir("./public"))
+	mux.Handle("/", fs)
+
 	server := &http.Server{
 		Addr:         "127.0.0.1:" + port,
 		WriteTimeout: 10 * time.Second,

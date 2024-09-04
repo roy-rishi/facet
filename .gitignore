@@ -1,5 +1,6 @@
 # project
 .env
+public
 
 # macOS
 .DS_Store

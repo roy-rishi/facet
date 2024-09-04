@@ -1,4 +1,5 @@
 import 'package:facet/styles.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -30,44 +31,39 @@ class StravaConnectCallback extends StatefulWidget {
 }
 
 class _StravaConnectCallbackState extends State<StravaConnectCallback> {
-  final String titleMsg = "Connecting...";
+  final String titleMsg = "Completing Request";
 
   @override
   Widget build(BuildContext context) {
+    final msgStyle = Theme.of(context).textTheme.bodyLarge;
+
     return Scaffold(
         body: SafeArea(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Center(child: Text(titleMsg, style: getTitleStyle(context))),
-          SizedBox(
-            height: 60,
-            child: FutureBuilder(
-              future:
-                  _exchangeCodeForTokenServerside(widget.code, widget.scope),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Scaffold(
-                                body: SafeArea(
-                                    child: Text(snapshot.data!
-                                        ? "Connected to Strava!"
-                                        : "Try Again")))));
-                  });
-                }
-                return const UnconstrainedBox(
-                  child: SizedBox(
-                    width: 25,
-                    height: 25,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              },
-            ),
-          )
+          FutureBuilder(
+            future: _exchangeCodeForTokenServerside(widget.code, widget.scope),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Scaffold(
+                              body: SafeArea(
+                                  child: Text(snapshot.data!
+                                      ? "Connected to Strava!"
+                                      : "Try Again")))));
+                });
+              }
+              return const CupertinoActivityIndicator(radius: 13);
+            },
+          ),
+          Center(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(titleMsg, style: msgStyle),
+          )),
         ],
       ),
     ));

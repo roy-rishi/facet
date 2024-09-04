@@ -1,9 +1,11 @@
 import 'package:facet/login_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 Future<int> verifyAuth() async {
-  final response = await http.get(Uri.parse("https://facet.rishiroy.com/verify"));
+  final response =
+      await http.get(Uri.parse("https://facet.rishiroy.com/verify"));
   print(response.body);
   if (response.statusCode == 200) {
     return 200;
@@ -30,7 +32,6 @@ class _StartPageState extends State<StartPage> {
   void initState() {
     super.initState();
     _authStatus = verifyAuth();
-    // futureValidReq = verifyReq();
   }
 
   @override
@@ -82,17 +83,16 @@ class _StartPageState extends State<StartPage> {
                         child: Text("Sign In",
                             style: Theme.of(context).textTheme.titleLarge),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()));
                         },
                       );
                     }
                   }
                   return const UnconstrainedBox(
-                    child: SizedBox(
-                      width: 25,
-                      height: 25,
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: CupertinoActivityIndicator(radius: 15),
                   );
                 },
               ),
