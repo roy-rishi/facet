@@ -52,6 +52,11 @@ Widget _stravaAuthCallbackHandler(Map<String, String> params) {
   );
 }
 
+abstract class Routes {
+  static const email = "email";
+  static const strava = "strava";
+}
+
 GoRouter _router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
@@ -59,12 +64,12 @@ GoRouter _router = GoRouter(
       builder: (_, __) => AppRoot(page: const StartPage()),
       routes: [
         GoRoute(
-          path: "strava-auth",
+          path: Routes.strava,
           builder: (_, state) =>
               _stravaAuthCallbackHandler(state.uri.queryParameters),
         ),
         GoRoute(
-          path: "email",
+          path: Routes.email,
           builder: (_, state) => AppRoot(
             page: EmailTokenVerification(
               token: state.uri.queryParameters["t"]!,

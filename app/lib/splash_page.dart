@@ -1,6 +1,7 @@
 import 'package:facet/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 Future<int> verifyAuth() async {
@@ -83,6 +84,7 @@ class _StartPageState extends State<StartPage> {
                         child: Text("Sign In",
                             style: Theme.of(context).textTheme.titleLarge),
                         onPressed: () {
+                          // context.go("/email?t=hithere");
                           Navigator.push(
                               context,
                               MaterialPageRoute(
