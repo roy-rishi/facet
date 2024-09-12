@@ -5,11 +5,12 @@ import 'package:facet/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
-  // runApp(const AppRoot());
+  usePathUrlStrategy(); // remove # in web url path
   runApp(MaterialApp.router(
-    routerConfig: router,
+    routerConfig: _router,
   ));
 }
 
@@ -37,7 +38,7 @@ class AppRoot extends StatelessWidget {
   }
 }
 
-Widget stravaAuthCallbackHandler(Map<String, String> params) {
+Widget _stravaAuthCallbackHandler(Map<String, String> params) {
   if (params["error"] == "access_denied") {
     throw UnimplementedError("User did not grant permission");
   }
@@ -50,29 +51,26 @@ Widget stravaAuthCallbackHandler(Map<String, String> params) {
     scope: params["scope"]!,
   );
 }
-// TODO: browser routes: https://blog.devgenius.io/navigation-using-gorouter-in-flutter-web-31045818a1e5
-// TODO: email verification route
-final router = GoRouter(
-  routes: [
+
+GoRouter _router = GoRouter(
+  routes: <RouteBase>[
     GoRoute(
       path: "/",
       builder: (_, __) => AppRoot(page: const StartPage()),
       routes: [
         GoRoute(
           path: "strava-auth",
-          builder: (context, state) {
-            return AppRoot(
-                page: stravaAuthCallbackHandler(state.uri.queryParameters));
-          },
+          builder: (_, state) =>
+              _stravaAuthCallbackHandler(state.uri.queryParameters),
         ),
         GoRoute(
           path: "email",
-          builder: (context, state) {
-            return AppRoot(
-                page: EmailTokenVerification(
-                    token: state.uri.queryParameters["t"]!));
-          },
-        )
+          builder: (_, state) => AppRoot(
+            page: EmailTokenVerification(
+              token: state.uri.queryParameters["t"]!,
+            ),
+          ),
+        ),
       ],
     ),
   ],
