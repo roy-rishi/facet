@@ -54,7 +54,7 @@ func generateRandomString(n int) (string, error) {
 
 func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("POST /strava/exchange-code")
-	// decode request reqBody
+	// decode request body
 	var reqBody postBody
 	err := json.NewDecoder(r.Body).Decode(&reqBody)
 	if err != nil {
@@ -119,7 +119,20 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// store results in db
-	_, err = database.DB.Exec(context.Background(), "INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, facet_refresh_token, strava_refresh_token, strava_access_token) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT(id) DO UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name, username = EXCLUDED.username, profile_image = EXCLUDED.profile_image, profile_image_medium = EXCLUDED.profile_image_medium, bio = EXCLUDED.bio, facet_refresh_token = EXCLUDED.facet_refresh_token, strava_refresh_token = EXCLUDED.strava_refresh_token, strava_access_token = EXCLUDED.strava_access_token;",
+	_, err = database.DB.Exec(context.Background(), `
+		INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, facet_refresh_token, strava_refresh_token, strava_access_token)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		ON CONFLICT(id)
+		DO UPDATE SET
+			first_name = EXCLUDED.first_name,
+			last_name = EXCLUDED.last_name,
+			username = EXCLUDED.username,
+			profile_image = EXCLUDED.profile_image,
+			profile_image_medium = EXCLUDED.profile_image_medium,
+			bio = EXCLUDED.bio,
+			facet_refresh_token = EXCLUDED.facet_refresh_token,
+			strava_refresh_token = EXCLUDED.strava_refresh_token,
+			strava_access_token = EXCLUDED.strava_access_token;`,
 		res.Athlete.ID,
 		res.Athlete.Firstname,
 		res.Athlete.Lastname,
