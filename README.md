@@ -1,8 +1,8 @@
 # facet
 insights into every facet of your bike. built with Flutter and Go
 
-## usage
-### env. variables
+## setup
+### variables
 configure the server by writing the following to `server/.env`
 ```
 PORT=3010
@@ -19,3 +19,9 @@ keyPassword=<password>
 keyAlias=upload
 storeFile=<keystore-file-location>
 ```
+
+### web build
+run `flutter build web` and copy resulting web build files into `server/assets/public`
+
+### database
+a database and tables must be created manually
