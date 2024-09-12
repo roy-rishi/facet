@@ -1,16 +1,15 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/roy-rishi/facet/app_links"
 	"github.com/roy-rishi/facet/auth"
+	"github.com/roy-rishi/facet/database"
 	"github.com/roy-rishi/facet/strava"
 	"github.com/roy-rishi/facet/web_host"
 )
@@ -22,11 +21,7 @@ func main() {
 
 	// connect to database
 	log.Println("Connecting to database at DATABASE_URL from .env")
-	db, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	defer db.Close()
+	database.ConnectToDB()
 
 	// initiate server
 	mux := http.NewServeMux()
