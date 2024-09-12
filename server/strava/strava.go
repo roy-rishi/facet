@@ -12,6 +12,7 @@ import (
 	"os"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/roy-rishi/facet/database"
 )
@@ -94,10 +95,10 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	stravaRes, err := client.Do(request)
 	defer stravaRes.Body.Close()
 	stravaResBytes, err := io.ReadAll(stravaRes.Body)
-	log.Printf("raw strava json response: %v", string(stravaResBytes))
 	if stravaRes.StatusCode != 200 {
 		http.Error(w, "", http.StatusBadGateway)
-		log.Printf("Strava status code %v\n", stravaRes.StatusCode)
+		log.Printf("ERROR: Strava status code %v\n", stravaRes.StatusCode)
+		log.Printf("strava json response: %v", string(stravaResBytes))
 		return
 	}
 
@@ -117,11 +118,14 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	// calculate token expiration
+	expTime := time.Now().Add(time.Minute)
+	expTimestamp := expTime.Format("2006-01-02 15:04:05 -07:00")
 
-	// store results in db
+	// store user in db
 	_, err = database.DB.Exec(context.Background(), `
-		INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, facet_refresh_token, strava_refresh_token, strava_access_token)
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, strava_refresh_token, strava_access_token)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		ON CONFLICT(id)
 		DO UPDATE SET
 			first_name = EXCLUDED.first_name,
@@ -130,7 +134,6 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 			profile_image = EXCLUDED.profile_image,
 			profile_image_medium = EXCLUDED.profile_image_medium,
 			bio = EXCLUDED.bio,
-			facet_refresh_token = EXCLUDED.facet_refresh_token,
 			strava_refresh_token = EXCLUDED.strava_refresh_token,
 			strava_access_token = EXCLUDED.strava_access_token;`,
 		res.Athlete.ID,
@@ -140,9 +143,21 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		res.Athlete.Profile,
 		res.Athlete.ProfileMedium,
 		res.Athlete.Bio,
-		facetRefreshToken,
 		res.RefreshToken,
 		res.AccessToken)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// store token in db
+	_, err = database.DB.Exec(context.Background(), `
+		INSERT INTO credentials (user_id, access_token, expiration)
+		VALUES ($1, $2, $3);`,
+		res.Athlete.ID,
+		facetRefreshToken,
+		expTimestamp)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)

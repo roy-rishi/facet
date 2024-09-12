@@ -6,11 +6,20 @@ CREATE TABLE public.users (
     profile_image TEXT NOT NULL,
     profile_image_medium TEXT NOT NULL,
     bio TEXT NOT NULL,
-
-    facet_refresh_token TEXT NOT NULL,
     strava_refresh_token TEXT NOT NULL,
     strava_access_token TEXT NOT NULL
 );
+
+CREATE TABLE public.credentials (
+    user_id INTEGER REFERENCES users(id),
+    access_token TEXT NOT NULL,
+    expiration TIMESTAMPTZ NOT NULL
+);
+
+SET timezone = 'America/Los_Angeles';
+
+INSERT INTO credentials (user_id, access_token, expiration) VALUES (44597161, 'accesstokentestvalue', '2006-01-02 15:04:05 -07:00');
+
 
 -- INSERT
 INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, facet_refresh_token, strava_refresh_token, strava_access_token)
