@@ -1,4 +1,4 @@
-import 'package:facet/snackbar.dart';
+import 'package:facet/dialogs.dart';
 import 'package:facet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';

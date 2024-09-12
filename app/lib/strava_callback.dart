@@ -1,8 +1,10 @@
-import 'package:facet/styles.dart';
+import 'package:facet/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:facet/routes.dart';
 
 Future<bool> _exchangeCodeForTokenServerside(String code, String scope) async {
   final response = await http.post(
@@ -23,6 +25,7 @@ Future<bool> _exchangeCodeForTokenServerside(String code, String scope) async {
 
 class StravaConnectCallback extends StatefulWidget {
   StravaConnectCallback({super.key, required this.code, required this.scope});
+
   String code;
   String scope;
 
@@ -31,7 +34,7 @@ class StravaConnectCallback extends StatefulWidget {
 }
 
 class _StravaConnectCallbackState extends State<StravaConnectCallback> {
-  final String titleMsg = "Completing Request";
+  final String titleMsg = "Completing Login";
 
   @override
   Widget build(BuildContext context) {
@@ -46,21 +49,39 @@ class _StravaConnectCallbackState extends State<StravaConnectCallback> {
             future: _exchangeCodeForTokenServerside(widget.code, widget.scope),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                              body: SafeArea(
-                                  child: Text(snapshot.data!
-                                      ? "Connected to Strava!"
-                                      : "Try Again")))));
-                });
+                if (snapshot.data!) {
+                  // successfully connected to strava
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    context.go("/" + Routes.home);
+                  });
+                } else {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    showDialog<void>(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Center(child: Text("Try Again")),
+                          content: Text(
+                              "Could not connect to Strava.\n\nCommon Issues:\nPermissions not granted: ensure all permissions are granted by checking every box on Strava's page.\nStale request: Your request may have timed out.\n\nPlease try again."),
+                          actions: <Widget>[
+                            TextButton(
+                                onPressed: () {
+                                  context.go("/" + Routes.login);
+                                },
+                                child: const Text("OK"))
+                          ],
+                        );
+                      },
+                    );
+                  });
+                }
               }
               return const CupertinoActivityIndicator(radius: 13);
             },
           ),
-          Center(child: Padding(
+          Center(
+              child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(titleMsg, style: msgStyle),
           )),

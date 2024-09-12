@@ -13,15 +13,18 @@ Widget _stravaCallbackHandler(Map<String, String> params) {
     throw UnimplementedError(
         "Expected additional query params in Strava callback");
   }
-  return StravaConnectCallback(
-    code: params["code"]!,
-    scope: params["scope"]!,
+  return AppRoot(
+    page: StravaConnectCallback(
+      code: params["code"]!,
+      scope: params["scope"]!,
+    ),
   );
 }
 
 abstract class Routes {
   static const login = "login";
   static const stravaCallback = "callback";
+  static const home = "home";
 }
 
 GoRouter router = GoRouter(
@@ -38,6 +41,11 @@ GoRouter router = GoRouter(
         GoRoute(
           path: Routes.login,
           builder: (_, state) => AppRoot(page: StravaConnectPage()),
+        ),
+        GoRoute(
+          path: Routes.home,
+          builder: (_, __) => const Scaffold(
+              body: SafeArea(child: Center(child: Text("Home")))),
         ),
       ],
     ),

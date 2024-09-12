@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'package:facet/routes.dart';
@@ -92,17 +93,9 @@ class _StartPageState extends State<StartPage> {
                       return Container();
                     }
                     if (snapshot.data == 401) {
-                      // return TextButton(
-                      //   child: Text("Sign In",
-                      //       style: Theme.of(context).textTheme.titleLarge),
-                      //   onPressed: () {
-                      //     context.go("/" + Routes.login);
-                      //   },
-                      // );
                       return TextButton.icon(
                         onPressed: () {
-                          _launchInBrowser(Uri.parse(
-                              "https://www.strava.com/oauth/mobile/authorize?client_id=133457&redirect_uri=https://facet.rishiroy.com/${Routes.stravaCallback}&response_type=code&scope=activity:read_all"));
+                          context.go("/" + Routes.login);
                         },
                         icon: const Icon(Icons.open_in_browser_rounded),
                         label: const Text("Login with Strava"),
