@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:facet/routes.dart';
+import 'package:facet/storage.dart';
 
-Future<bool> _exchangeCodeForTokenServerside(String code, String scope) async {
+Future<bool> _exchangeCodeForTokenServerside(
+    String code, String scope) async {
   final response = await http.post(
     Uri.parse("https://facet.rishiroy.com/strava/exchange-code"),
     headers: <String, String>{
@@ -20,6 +22,7 @@ Future<bool> _exchangeCodeForTokenServerside(String code, String scope) async {
       "token": "test_token",
     }),
   );
+  setAccessToken(response.body); // store token
   return response.statusCode == 200;
 }
 
@@ -49,8 +52,8 @@ class _StravaConnectCallbackState extends State<StravaConnectCallback> {
             future: _exchangeCodeForTokenServerside(widget.code, widget.scope),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                // check if successfully connected to strava
                 if (snapshot.data!) {
-                  // successfully connected to strava
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     context.go("/" + Routes.home);
                   });

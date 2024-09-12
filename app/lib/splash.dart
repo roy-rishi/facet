@@ -1,20 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'package:facet/routes.dart';
-
-Future<void> _launchInBrowser(Uri url) async {
-  if (!await launchUrl(
-    url,
-    // TODO: determine how to open, and conditionally form the url per strava guidelines:
-    // https://developers.strava.com/docs/authentication/#oauthoverview
-    mode: LaunchMode.platformDefault,
-  )) {
-    throw Exception("Could not launch $url");
-  }
-}
 
 Future<int> verifyAuth() async {
   final response =

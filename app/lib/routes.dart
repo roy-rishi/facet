@@ -1,3 +1,4 @@
+import 'package:facet/home.dart';
 import 'package:facet/strava_login.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
@@ -44,8 +45,7 @@ GoRouter router = GoRouter(
         ),
         GoRoute(
           path: Routes.home,
-          builder: (_, __) => const Scaffold(
-              body: SafeArea(child: Center(child: Text("Home")))),
+          builder: (_, __) => const AppRoot(page: HomePage()),
         ),
       ],
     ),

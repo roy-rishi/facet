@@ -33,6 +33,7 @@ func SPAFileServeHandler(dir string) func(http.ResponseWriter, *http.Request) {
 		if wt.statusCode == http.StatusNotFound {
 			r.URL.Path = "/"
 			w.Header().Set("Content-Type", "text/html")
+			w.Header().Set("Strict-Transport-Security", "max-age=63072000") // enforce https
 			fileServer.ServeHTTP(w, r)
 		}
 	}

@@ -3,7 +3,10 @@
     <application
         android:label="facet"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false">
+        <!-- ^ disabled backups for flutter_secure_store -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
