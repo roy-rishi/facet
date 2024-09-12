@@ -1,5 +1,5 @@
 import 'package:facet/email_token_verification.dart';
-import 'package:facet/spash_page.dart';
+import 'package:facet/splash_page.dart';
 import 'package:facet/strava_connect_callback.dart';
 import 'package:facet/theme.dart';
 import 'package:flutter/material.dart';
