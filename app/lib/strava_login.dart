@@ -1,4 +1,5 @@
-import 'package:facet/functions.dart';
+import 'package:facet/snackbar.dart';
+import 'package:facet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
@@ -15,10 +16,9 @@ Future<void> _launchInBrowser(Uri url) async {
 }
 
 class StravaConnectPage extends StatelessWidget {
-  const StravaConnectPage({super.key});
+  StravaConnectPage({super.key});
 
-  final stravaOAuthUri =
-      "https://www.strava.com/oauth/mobile/authorize?client_id=133457&redirect_uri=https://facet.rishiroy.com/strava&response_type=code&scope=activity:read_all";
+  final stravaOAuthUri = "https://www.strava.com/oauth/mobile/authorize?client_id=133457&redirect_uri=https://facet.rishiroy.com/${Routes.stravaCallback}&response_type=code&scope=activity:read_all";
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class StravaConnectPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                   text: TextSpan(
                     children: <TextSpan>[
-                      TextSpan(text: "Connect to Strava", style: titleStyle),
+                      TextSpan(text: "Login with Strava", style: titleStyle),
                     ],
                   ),
                 ),
@@ -107,7 +107,7 @@ class StravaConnectPage extends StatelessWidget {
                   _launchInBrowser(Uri.parse(stravaOAuthUri));
                 },
                 icon: const Icon(Icons.open_in_browser_rounded),
-                label: const Text("Connect to Strava"),
+                label: const Text("Login with Strava"),
               ),
               TextButton.icon(
                   onPressed: () {

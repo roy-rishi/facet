@@ -1,8 +1,19 @@
-import 'package:facet/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
+import 'package:facet/routes.dart';
+
+Future<void> _launchInBrowser(Uri url) async {
+  if (!await launchUrl(
+    url,
+    // TODO: determine how to open, and conditionally form the url per strava guidelines:
+    // https://developers.strava.com/docs/authentication/#oauthoverview
+    mode: LaunchMode.platformDefault,
+  )) {
+    throw Exception("Could not launch $url");
+  }
+}
 
 Future<int> verifyAuth() async {
   final response =
@@ -26,6 +37,7 @@ class StartPage extends StatefulWidget {
 
 class _StartPageState extends State<StartPage> {
   late Future<int> _authStatus;
+
   // maintains constant height before and after loading
   static const double reservedLoadingHeight = 60;
 
@@ -70,7 +82,7 @@ class _StartPageState extends State<StartPage> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data == 200) {
-                      // move to home page after FutureBuilder stops
+                      // TODO: move to home page
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         Navigator.push(
                             context,
@@ -80,16 +92,20 @@ class _StartPageState extends State<StartPage> {
                       return Container();
                     }
                     if (snapshot.data == 401) {
-                      return TextButton(
-                        child: Text("Sign In",
-                            style: Theme.of(context).textTheme.titleLarge),
+                      // return TextButton(
+                      //   child: Text("Sign In",
+                      //       style: Theme.of(context).textTheme.titleLarge),
+                      //   onPressed: () {
+                      //     context.go("/" + Routes.login);
+                      //   },
+                      // );
+                      return TextButton.icon(
                         onPressed: () {
-                          // context.go("/email?t=hithere");
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const LoginPage()));
+                          _launchInBrowser(Uri.parse(
+                              "https://www.strava.com/oauth/mobile/authorize?client_id=133457&redirect_uri=https://facet.rishiroy.com/${Routes.stravaCallback}&response_type=code&scope=activity:read_all"));
                         },
+                        icon: const Icon(Icons.open_in_browser_rounded),
+                        label: const Text("Login with Strava"),
                       );
                     }
                   }

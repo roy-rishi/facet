@@ -16,10 +16,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type TokenReq struct {
-	Token string
-}
-
 type StravaCodeExchange struct {
 	Code  string
 	Scope string
@@ -36,36 +32,16 @@ func verifyHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(""))
 }
 
-func verifyEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("POST /verify-email-token")
-	var t TokenReq
-	err := json.NewDecoder(r.Body).Decode(&t)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	jwt := t.Token
-	log.Println(jwt)
-	// TODO: jwt checking
-	if jwt == "crazy.rich.asians" {
-		w.Write([]byte(""))
-	} else {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte(""))
-	}
-}
-
 func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("POST /strava/exchange-code")
 	// decode request body
 	var body StravaCodeExchange
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Println(body)
-	// TODO: check if Facet token is valid
 
 	// check if necessary scopes were granted
 	scopesExpected := [...]string{"read", "activity:read_all"}
@@ -89,10 +65,7 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		Code         string `json:"code"`
 		GrantType    string `json:"authorization_code"`
 	}
-	clientID := os.Getenv("CLIENT_ID")
-	clientSecret := os.Getenv("CLIENT_SECRET")
-	// TODO: error handling on this whole func body
-	newBody, err := json.Marshal(bodyParams{ClientID: clientID, ClientSecret: clientSecret, Code: body.Code, GrantType: "authorization_code"})
+	newBody, err := json.Marshal(bodyParams{ClientID: os.Getenv("CLIENT_ID"), ClientSecret: os.Getenv("CLIENT_SECRET"), Code: body.Code, GrantType: "authorization_code"})
 	request, err := http.NewRequest("POST", "https://www.strava.com/oauth/token", bytes.NewBuffer(newBody))
 	request.Header.Set("Content-Type", "application/json")
 
@@ -112,7 +85,7 @@ func stravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if stravaRes.StatusCode != 200 || stravaResJSON["refresh_token"] == nil {
-		http.Error(w, "", http.StatusBadRequest)
+		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
 	// TODO: register refresh_token in database
@@ -186,7 +159,6 @@ func main() {
 	// initiate server
 	mux := http.NewServeMux()
 	mux.HandleFunc("/verify", verifyHandler)
-	mux.HandleFunc("/verify-email-token", verifyEmailTokenHandler)
 	mux.HandleFunc("/strava/exchange-code", stravaAuthCallbackHandler)
 	mux.HandleFunc("/.well-known/assetlinks.json", androidAppLinkFingerprintsHandler)
 	mux.HandleFunc("/", spaFileServeHandler("public")) // host web build files from /server/public
