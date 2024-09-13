@@ -11,14 +11,16 @@ CREATE TABLE public.users (
 );
 
 CREATE TABLE public.credentials (
-    user_id INTEGER REFERENCES users(id),
-    access_token TEXT NOT NULL,
-    expiration TIMESTAMPTZ NOT NULL
+    access_token TEXT NOT NULL PRIMARY KEY,
+    expiration TIMESTAMPTZ NOT NULL,
+    user_id INTEGER REFERENCES users(id)
 );
 
 SET timezone = 'America/Los_Angeles';
 
 INSERT INTO credentials (user_id, access_token, expiration) VALUES (44597161, 'accesstokentestvalue', '2006-01-02 15:04:05 -07:00');
+DELETE FROM credentials WHERE NOW() > expiration;
+SELECT user_id FROM credentials WHERE access_token = 'u7FEu2skNwo1Ano9WHCqmJFBwoy9Vn8iq1Yx0bFk' AND NOW() < expiration;
 
 
 -- INSERT

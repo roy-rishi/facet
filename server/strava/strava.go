@@ -25,12 +25,12 @@ type postBody struct {
 }
 
 type resBody struct {
-	RefreshToken string         `json:"refresh_token"`
-	AccessToken  string         `json:"access_token"`
-	Athlete      resAthleteBody `json:"athlete"`
+	RefreshToken string            `json:"refresh_token"`
+	AccessToken  string            `json:"access_token"`
+	Athlete      resAthleteSubBody `json:"athlete"`
 }
 
-type resAthleteBody struct {
+type resAthleteSubBody struct {
 	ID            int    `json:"id"`
 	Username      string `json:"username"`
 	Firstname     string `json:"firstname"`
@@ -119,7 +119,7 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// calculate token expiration
-	expTime := time.Now().Add(time.Minute)
+	expTime := time.Now().Add(time.Minute / 2)
 	expTimestamp := expTime.Format("2006-01-02 15:04:05 -07:00")
 
 	// store user in db

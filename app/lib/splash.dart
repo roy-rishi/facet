@@ -3,10 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:facet/routes.dart';
+import 'dart:convert';
+import 'package:facet/storage.dart';
 
 Future<int> verifyAuth() async {
-  final response =
-      await http.get(Uri.parse("https://facet.rishiroy.com/verify"));
+  String accessToken = await storage.read(key: accessTokenKey) ?? "";
+
+  final response = await http.post(
+    Uri.parse("https://facet.rishiroy.com/verify"),
+    headers: <String, String>{
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode(<String, String>{
+      "AccessToken": accessToken,
+    }),
+  );
   print(response.body);
   if (response.statusCode == 200) {
     return 200;
@@ -71,12 +82,8 @@ class _StartPageState extends State<StartPage> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     if (snapshot.data == 200) {
-                      // TODO: move to home page
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Placeholder()));
+                        context.go("/" + Routes.home);
                       });
                       return Container();
                     }
