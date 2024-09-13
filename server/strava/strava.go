@@ -18,10 +18,9 @@ import (
 )
 
 type postBody struct {
-	Code  string
-	Scope string
-	Email string
-	Token string
+	Code     string
+	Scope    string
+	FCMtoken string
 }
 
 type resBody struct {
@@ -112,7 +111,7 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate facet refresh token
-	facetRefreshToken, err := generateRandomString(40)
+	facetAccessToken, err := generateRandomString(40)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -122,7 +121,7 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	expTime := time.Now().Add(time.Minute / 2)
 	expTimestamp := expTime.Format("2006-01-02 15:04:05 -07:00")
 
-	// store user in db
+	// upsert user in db
 	_, err = database.DB.Exec(context.Background(), `
 		INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, strava_refresh_token, strava_access_token)
 		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -151,12 +150,12 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// store token in db
+	// store access token in db
 	_, err = database.DB.Exec(context.Background(), `
 		INSERT INTO credentials (user_id, access_token, expiration)
 		VALUES ($1, $2, $3);`,
 		res.Athlete.ID,
-		facetRefreshToken,
+		facetAccessToken,
 		expTimestamp)
 	if err != nil {
 		log.Println(err.Error())
@@ -164,5 +163,17 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(facetRefreshToken))
+	// store fcm reg token if not exists
+	_, err = database.DB.Exec(context.Background(), `
+		INSERT INTO fcm_reg_tokens (token, user_id)
+		VALUES ($1, $2)
+		ON CONFLICT (token) DO NOTHING;`,
+		reqBody.FCMtoken, res.Athlete.ID)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte(facetAccessToken))
 }

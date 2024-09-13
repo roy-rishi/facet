@@ -41,7 +41,7 @@ func main() {
 	}
 	// <send test message>
 	// TODO: use actual reg. token from database of clients
-	registrationToken := "dLkdcKwqTxuuxdsQmS-yA1:APA91bHssF09ardP4q-sTRVsPCA99c-pj4BHTAv-BrqNIm_4ksT9i4i-6G6QqeL86EcJYDQBpR8CnYOefZCLlG_7HOxJJGBkkU4ozkZwZAzAQpBke0L8Afj3QMOqVCnF8Np0wm3MlWQU"
+	registrationToken := "dteI2AADSPOe4YegoxrIjS:APA91bEPZhsR-AhMjf2a434mV1w4t5YuPmamw9U-i6gLcBZHwhBbaHP8mWdP6CBVeRM54psCu7dAnj_7noM0cqJLEAAN0s-9OXxBxE2SchbcNqT8DX7HHsnTwEvL3TXuAXeE1dN1G64K"
 	message := &messaging.Message{
 		Notification: &messaging.Notification{
 			Title: "Facet via Server",

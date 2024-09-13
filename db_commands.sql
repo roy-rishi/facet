@@ -16,10 +16,19 @@ CREATE TABLE public.credentials (
     user_id INTEGER REFERENCES users(id)
 );
 
+CREATE TABLE public.fcm_reg_tokens (
+    token TEXT NOT NULL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id)
+);
+
 SET timezone = 'America/Los_Angeles';
 
 INSERT INTO credentials (user_id, access_token, expiration) VALUES (44597161, 'accesstokentestvalue', '2006-01-02 15:04:05 -07:00');
+
+-- DELETE all expired access tokens
 DELETE FROM credentials WHERE NOW() > expiration;
+
+-- SELECT the valid user_id for the access token, if exists
 SELECT user_id FROM credentials WHERE access_token = 'u7FEu2skNwo1Ano9WHCqmJFBwoy9Vn8iq1Yx0bFk' AND NOW() < expiration;
 
 

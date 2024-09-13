@@ -1,4 +1,3 @@
-import 'package:facet/dialogs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -6,9 +5,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:facet/routes.dart';
 import 'package:facet/storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-Future<bool> _exchangeCodeForTokenServerside(
-    String code, String scope) async {
+Future<bool> _exchangeCodeForTokenServerside(String code, String scope) async {
+  // get fcm token and check for null
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  if (fcmToken == null) {
+    throw ErrorDescription("Error: FCM token null");
+  }
   final response = await http.post(
     Uri.parse("https://facet.rishiroy.com/strava/exchange-code"),
     headers: <String, String>{
@@ -17,12 +21,12 @@ Future<bool> _exchangeCodeForTokenServerside(
     body: jsonEncode(<String, String>{
       "code": code,
       "scope": scope,
-      // TODO: use actual email and Facet access token
-      "email": "test@rishiroy.com",
-      "token": "test_token",
+      "FCMtoken": fcmToken,
     }),
   );
-  setAccessToken(response.body); // store token
+  if (response.statusCode == 200) {
+    setAccessToken(response.body); // store token
+  }
   return response.statusCode == 200;
 }
 
