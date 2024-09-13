@@ -25,3 +25,9 @@ run `flutter build web` and copy resulting web build files into `server/assets/p
 
 ### database
 a database and tables must be created manually
+
+### setup firebase
+TODO: instructions
+- setup instructions for Flutter in Firebase Console
+- server: https://firebase.google.com/docs/cloud-messaging/auth-server
+- see .gitignore for expected Firebase files

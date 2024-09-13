@@ -3,9 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:facet/routes.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-void main() {
+Future<void> main() async {
   usePathUrlStrategy(); // remove # in web url path
+
+  // initialize firebase
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // TODO: request notification permissions at more appropriate time in signup flow
+  // TODO: handle notification in foreground
+  final notificationSettings = await FirebaseMessaging.instance.requestPermission(provisional: false);
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print("firebase registration token: " + (fcmToken ?? "null"));
+
   runApp(MaterialApp.router(
     routerConfig: router,
   ));

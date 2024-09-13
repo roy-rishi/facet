@@ -2,6 +2,14 @@
 .env
 public
 
+## firebase
+app/android/app/google-services.json
+app/firebase.json
+app/ios/Runner/GoogleService-Info.plist
+app/lib/firebase_options.dart
+app/macos/Runner/GoogleService-Info.plist
+server/assets/private/serviceAccountKey.json
+
 # macOS
 .DS_Store
 
