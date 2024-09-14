@@ -5,11 +5,13 @@ insights into every facet of your bike. built with Flutter and Go
 ### variables
 configure the server by writing the following to `server/.env`
 ```
-PORT=3010
-# Strava API https://www.strava.com/settings/api
+PORT=<server_port>
+DATABASE_URL=postgres://<remainder_of_url>
+
+# Strava API
 CLIENT_ID=<client_id>
 CLIENT_SECRET=<client_secret>
-DATABASE_URL=postgres://<remainder_of_url>
+WEBHOOK_VERIFY_TOKEN=<any_random_token>
 ```
 
 to sign Android Apps, write the following to `app/android/key.properties`

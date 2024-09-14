@@ -62,6 +62,7 @@ func main() {
 	mux.HandleFunc("/strava/exchange-code", strava.StravaAuthCallbackHandler)
 	mux.HandleFunc("/.well-known/assetlinks.json", app_links.AndroidAppLinkFingerprintsHandler)
 	mux.HandleFunc("/", web_host.SPAFileServeHandler("assets/public")) // host web build files from /server/public
+	mux.HandleFunc("/strava/webhook", strava.StravaWebhookHandler)
 
 	server := &http.Server{
 		Addr:         "127.0.0.1:" + port,

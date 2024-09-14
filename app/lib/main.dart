@@ -19,7 +19,6 @@ Future<void> main() async {
   // TODO: handle notification in foreground
   final notificationSettings = await FirebaseMessaging.instance.requestPermission(provisional: false);
   final fcmToken = await FirebaseMessaging.instance.getToken();
-  print("firebase registration token: " + (fcmToken ?? "null"));
 
   runApp(MaterialApp.router(
     routerConfig: router,
