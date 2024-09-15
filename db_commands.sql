@@ -6,8 +6,9 @@ CREATE TABLE public.users (
     profile_image TEXT NOT NULL,
     profile_image_medium TEXT NOT NULL,
     bio TEXT NOT NULL,
-    strava_refresh_token TEXT NOT NULL,
-    strava_access_token TEXT NOT NULL
+    strava_refresh_token TEXT,
+    strava_access_token TEXT,
+    accessRevoked BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE public.credentials (

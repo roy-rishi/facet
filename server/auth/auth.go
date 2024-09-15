@@ -42,7 +42,7 @@ func VerifyHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(""))
 		return
 	}
-	log.Println("token is NOT valid")
+	log.Println("token not valid")
 	w.WriteHeader(http.StatusUnauthorized)
 	w.Write([]byte(""))
 }
