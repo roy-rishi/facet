@@ -32,6 +32,9 @@ DELETE FROM credentials WHERE NOW() > expiration;
 -- SELECT the valid user_id for the access token, if exists
 SELECT user_id FROM credentials WHERE access_token = 'u7FEu2skNwo1Ano9WHCqmJFBwoy9Vn8iq1Yx0bFk' AND NOW() < expiration;
 
+-- revoke access
+UPDATE users SET accessRevoked = TRUE WHERE id = IDIDID;
+
 
 -- INSERT
 INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, facet_refresh_token, strava_refresh_token, strava_access_token)

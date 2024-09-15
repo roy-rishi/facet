@@ -123,8 +123,8 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	// upsert user in db
 	_, err = database.DB.Exec(context.Background(), `
-		INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, strava_refresh_token, strava_access_token)
-		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		INSERT INTO users (id, first_name, last_name, username, profile_image, profile_image_medium, bio, strava_refresh_token, strava_access_token, accessRevoked)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		ON CONFLICT(id)
 		DO UPDATE SET
 			first_name = EXCLUDED.first_name,
@@ -134,7 +134,8 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 			profile_image_medium = EXCLUDED.profile_image_medium,
 			bio = EXCLUDED.bio,
 			strava_refresh_token = EXCLUDED.strava_refresh_token,
-			strava_access_token = EXCLUDED.strava_access_token;`,
+			strava_access_token = EXCLUDED.strava_access_token,
+			accessRevoked = EXCLUDED.accessRevoked;`,
 		res.Athlete.ID,
 		res.Athlete.Firstname,
 		res.Athlete.Lastname,
@@ -143,7 +144,8 @@ func StravaAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		res.Athlete.ProfileMedium,
 		res.Athlete.Bio,
 		res.RefreshToken,
-		res.AccessToken)
+		res.AccessToken,
+		false)
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)

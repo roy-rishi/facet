@@ -2,11 +2,14 @@ package strava
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/roy-rishi/facet/database"
 )
 
 type eventData struct {
@@ -91,9 +94,15 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else if objectType == "athlete" {
-		// athleteID := reqBody.ObjectID
+		athleteID := reqBody.ObjectID
 		if reqBody.Updates.Authorized == "false" {
 			log.Println("Deauthorization request")
+			_, err := database.DB.Exec(context.Background(), `UPDATE users SET accessRevoked = TRUE WHERE id = $1;`, athleteID)
+			if err != nil {
+				log.Println(err.Error())
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 			w.Write([]byte(""))
 			return
 		} else {
