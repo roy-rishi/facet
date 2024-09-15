@@ -80,18 +80,16 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 			if reqBody.Updates.Title != "" {
 				newTitle := reqBody.Updates.Title
 				log.Println("New title:", newTitle)
-				return
 			}
 			if reqBody.Updates.Type != "" {
 				newType := reqBody.Updates.Type
 				log.Println("New type:", newType)
-				return
 			}
 			if reqBody.Updates.Private != "" {
 				newPrivacy := reqBody.Updates.Private
 				log.Println("New privacy:", newPrivacy)
-				return
 			}
+			return
 		}
 	} else if objectType == "athlete" {
 		athleteID := reqBody.ObjectID
