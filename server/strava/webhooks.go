@@ -30,6 +30,26 @@ type updateData struct {
 	Authorized string `json:"authorized"`
 }
 
+func createActivityHandler(reqBody eventData) {
+	// get fcm reg tokens and push notif. to all clients
+	rows, err := database.DB.Query(context.Background(), `SELECT token from fcm_reg_tokens WHERE user_id = $1;`, reqBody.OwnerID)
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var fcmRegToken string
+		err := rows.Scan(&fcmRegToken)
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		// TODO: deeplinking
+		firebase.PushNotificationToClient("Nice ride! 🚴", "Tap to see more", fcmRegToken)
+	}
+}
+
 func subscriptionValidationHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /strava/webhook")
 	mode := r.URL.Query().Get("hub.mode")
@@ -66,30 +86,12 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 	objectType := reqBody.ObjectType
 	if objectType == "activity" {
 		// activityID := reqBody.ObjectID
-		athleteID := reqBody.OwnerID
 		aspectType := reqBody.AspectType
 		switch aspectType {
 		case "create":
 			log.Println("Create activity")
 			w.Write([]byte(""))
-
-			// get fcm reg tokens and push notif to each client
-			rows, err := database.DB.Query(context.Background(), `SELECT token from fcm_reg_tokens WHERE user_id = $1;`, athleteID)
-			if err != nil {
-				log.Println(err.Error())
-				return
-			}
-			defer rows.Close()
-			for rows.Next() {
-				var fcmRegToken string
-				err := rows.Scan(&fcmRegToken)
-				if err != nil {
-					log.Println(err.Error())
-					return
-				}
-				// TODO: deeplinking
-				firebase.PushNotificationToClient("Facet logged your ride! 🚴", "Tap to dig deeper", fcmRegToken)
-			}
+			createActivityHandler(reqBody)
 
 		case "delete":
 			log.Println("Delete activity")
@@ -118,7 +120,6 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 			_, err := database.DB.Exec(context.Background(), `UPDATE users SET accessRevoked = TRUE WHERE id = $1;`, athleteID)
 			if err != nil {
 				log.Println(err.Error())
-				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			return
