@@ -7,7 +7,7 @@ import 'dart:convert';
 import 'package:facet/storage.dart';
 
 Future<int> verifyAuth() async {
-  String accessToken = await storage.read(key: accessTokenKey) ?? "";
+  String accessToken = await storage.read(key: "access_token") ?? "";
 
   final response = await http.post(
     Uri.parse("https://facet.rishiroy.com/verify"),
