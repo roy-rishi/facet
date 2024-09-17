@@ -3,9 +3,11 @@ package firebase
 import (
 	"context"
 	"log"
+	"strings"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
+	"github.com/roy-rishi/facet/database"
 	"google.golang.org/api/option"
 )
 
@@ -38,7 +40,17 @@ func PushNotificationToClient(title string, body string, regToken string) {
 	}
 	response, err := client.Send(context.Background(), message)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		if strings.Contains(err.Error(), "code: registration-token-not-registered") {
+			// token has been unregistered (likely due to an app uninstall), so remove it from db
+			log.Println("Removing from db fcm token", regToken)
+			_, dbErr := database.DB.Exec(context.Background(), `DELETE FROM fcm_reg_tokens WHERE token=$1`, regToken)
+			if dbErr != nil {
+				log.Println(dbErr.Error())
+				return
+			}
+			return
+		}
 	}
 	log.Println("Sent message:", response)
 }
