@@ -3,19 +3,111 @@ import 'package:flutter/material.dart';
 import 'package:facet/storage.dart';
 import 'package:facet/dialogs.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class Checklist extends StatefulWidget {
+class ProfileBlock extends StatelessWidget {
+  const ProfileBlock({super.key});
+
+  Future<String> _getImgURL() async {
+    await Future.delayed(const Duration(seconds: 5));
+    return "https://dgalywyr863hv.cloudfront.net/pictures/athletes/44597161/25714763/1/large.jpg";
+  }
+
+  Future<(String, String)> _getFullName() async {
+    await Future.delayed(const Duration(seconds: 2));
+    return ("Rishi", "Roy");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nameStyle = Theme.of(context).textTheme.bodyLarge!.copyWith(
+          fontSize: 17,
+          fontWeight: FontWeight.w900,
+        );
+
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 40, top: 35, bottom: 35),
+            child: Row(
+              children: [
+                SizedBox(
+                  height: 70,
+                  width: 70,
+                  child: FutureBuilder(
+                    future: _getImgURL(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CupertinoActivityIndicator();
+                      } else if (snapshot.hasData) {
+                        return Image.network(snapshot.data!);
+                      } else {
+                        return const Text("Failed to get image");
+                      }
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 12),
+                  child: FutureBuilder(
+                    future: _getFullName(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CupertinoActivityIndicator();
+                      } else if (snapshot.hasData) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("${snapshot.data!.$1} ${snapshot.data!.$2}",
+                                style: nameStyle),
+                            Text("Welcome back, ${snapshot.data!.$1}!")
+                          ],
+                        );
+                      } else {
+                        return const Text("Failed to get name");
+                      }
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 8,
+            right: 17,
+            child: Row(children: [
+              IconButton(
+                onPressed: () async {
+                  launchUrl(
+                    Uri.parse("https://www.strava.com/settings/profile"),
+                    mode: LaunchMode.platformDefault,
+                  );
+                },
+                icon: const Icon(Icons.edit_rounded),
+              ),
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ChecklistBlock extends StatefulWidget {
   final bool showNotif;
   final bool showOther; // dummy placeholder for future checklist items
 
-  const Checklist(
+  const ChecklistBlock(
       {super.key, required this.showNotif, required this.showOther});
 
   @override
-  State<Checklist> createState() => _ChecklistState();
+  State<ChecklistBlock> createState() => _ChecklistBlockState();
 }
 
-class _ChecklistState extends State<Checklist> {
+class _ChecklistBlockState extends State<ChecklistBlock> {
   late bool showNotif;
   late bool showOther;
 
@@ -60,14 +152,16 @@ class _ChecklistState extends State<Checklist> {
                                     actions: <Widget>[
                                       TextButton(
                                           onPressed: () {
-                                            prefs.setBool("user_removed_notif_checklist_item", true);
+                                            prefs.setBool(
+                                                "user_removed_notif_checklist_item",
+                                                true);
                                             setState(() {
                                               showNotif = false;
                                             });
                                             Navigator.pop(context);
                                           },
                                           child: const Text(
-                                              "Remove this checklist item without granting permission")),
+                                              "Hide this checklist item without granting permission")),
                                       FilledButton(
                                           onPressed: () {
                                             Navigator.pop(context);
@@ -122,13 +216,14 @@ class _ChecklistState extends State<Checklist> {
   }
 }
 
-Future<Checklist> _determineChecklistItems() async {
+Future<ChecklistBlock> _determineChecklistItems() async {
   final notifPermission =
       await FirebaseMessaging.instance.getNotificationSettings();
   final notifPermGranted =
       notifPermission.authorizationStatus == AuthorizationStatus.authorized;
-  final userRemovedNotifPermItem = prefs.getBool("user_removed_notif_checklist_item") ?? false;
-  return Checklist(
+  final userRemovedNotifPermItem =
+      prefs.getBool("user_removed_notif_checklist_item") ?? false;
+  return ChecklistBlock(
       showNotif: !notifPermGranted && !userRemovedNotifPermItem,
       showOther: true); // dummy true bool for future checklist items
 }
@@ -142,7 +237,10 @@ class HomePage extends StatelessWidget {
         body: SafeArea(
             child: Column(
       children: [
-        // checklist
+        // profile block
+        ProfileBlock(),
+
+        // checklist block
         FutureBuilder(
           future: _determineChecklistItems(),
           builder: (context, snapshot) {
@@ -158,7 +256,7 @@ class HomePage extends StatelessWidget {
             }
             return const Text("Error: Could not load checklist");
           },
-        )
+        ),
       ],
     )));
   }
